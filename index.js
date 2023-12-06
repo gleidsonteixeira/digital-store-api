@@ -1,6 +1,30 @@
 const express = require('express');
 const cors = require('cors');
+const swaggerUI = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc');
+
+let swaggerDefinition = {
+    servers: [{url: '/api'}],
+    info: {
+        title: 'Digital Store API',
+        version: '1.0.0',
+        description: 'Documentação da api'
+    },
+    components: {
+        schemas: require('./schemas.json')
+    }
+}
+
+let options = {
+    swaggerDefinition,
+    apis: ['./routes/*.js']
+}
+
+let swaggerSpec = swaggerJSDoc(options);
+
 const brandRoutes = require('./routes/brandRoutes');
+const categoriesRoutes = require('./routes/categoriesRoutes');
+const genderRoutes = require('./routes/genderRoutes');
 
 const app = express();
 const port = 8000;
@@ -8,11 +32,53 @@ const port = 8000;
 app.use(express.json());
 app.use(cors());
 
+
 app.get('/', (request, response) => {
     response.send('Bem vindo à API da Digital Store');
 });
 
+/**
+ * @swagger
+ * /marcas:
+ *  get: 
+ *      tags:
+ *          - Marcas
+ *      description:
+ *          - Traz a lista de marcas
+ *      produces:
+ *          - application/json
+ *      response: 
+ *          200:
+ *              description: Retorna uma lista de marcas
+ *              schema: 
+ *                  $ref: '#components/schemas/Brand'
+ */
+/**
+ * @swagger
+ * /marcas/{:id}:
+ *  get: 
+ *      tags:
+ *          - Marcas
+ *      description:
+ *          - Traz a uma marca
+ *      produces:
+ *          - application/json
+ *      parameters:
+ *          - name: brand_id
+ *              in: path
+ *              required: true
+ *      response: 
+ *          200:
+ *              description: Retorna uma marcas
+ *              schema: 
+ *                  $ref: '#components/schemas/Brand'
+ *          400: 
+ *              description: Marca não encontrada
+ */
 app.use('/marcas', brandRoutes);
+app.use('/categorias', categoriesRoutes);
+app.use('/generos', genderRoutes);
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.listen(port, () => {
     console.log(`Servidor de pé na url: http://localhost:${port}`);

@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const controller = require('../controllers/brandController')
 
 router.get('/', (req, res) => {
-    res.send('lista de marcas');
+    controller.listar();
+    res.send('lista de marcas nova');
 });
 router.post('/', (req, res) => {
     res.send(`cria uma marca: ${JSON.stringify(req.body)}`);
