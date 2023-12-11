@@ -3,8 +3,11 @@ const cors = require('cors');
 const swaggerUI = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
 
+const app = express();
+const port = 8000;
+
 let swaggerDefinition = {
-    servers: [{url: '/api'}],
+    servers: [{url: `http://localhost:${port}/api`}],
     info: {
         title: 'Digital Store API',
         version: '1.0.0',
@@ -26,12 +29,8 @@ const brandRoutes = require('./routes/brandRoutes');
 const categoriesRoutes = require('./routes/categoriesRoutes');
 const genderRoutes = require('./routes/genderRoutes');
 
-const app = express();
-const port = 8000;
-
 app.use(express.json());
 app.use(cors());
-
 
 app.get('/', (request, response) => {
     response.send('Bem vindo à API da Digital Store');
@@ -79,6 +78,10 @@ app.use('/marcas', brandRoutes);
 app.use('/categorias', categoriesRoutes);
 app.use('/generos', genderRoutes);
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
+app.all('*', (req, res) => {
+    res.status(404).send('Rota não encontrada');
+});
 
 app.listen(port, () => {
     console.log(`Servidor de pé na url: http://localhost:${port}`);
