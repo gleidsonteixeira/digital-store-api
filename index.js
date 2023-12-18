@@ -28,9 +28,19 @@ let swaggerSpec = swaggerJSDoc(options);
 const brandRoutes = require('./routes/brandRoutes');
 const categoriesRoutes = require('./routes/categoriesRoutes');
 const genderRoutes = require('./routes/genderRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 app.use(express.json());
 app.use(cors());
+
+const hasToken = (req, res, next) => {
+    const body = req.body;
+    if(!body.token){
+        return res.send('Token invalido')
+    }
+    next();
+}
+app.use(hasToken);
 
 app.get('/', (request, response) => {
     response.send('Bem vindo à API da Digital Store');
@@ -74,6 +84,10 @@ app.get('/', (request, response) => {
  *          400: 
  *              description: Marca não encontrada
  */
+
+
+
+app.use('/user', userRoutes);
 app.use('/marcas', brandRoutes);
 app.use('/categorias', categoriesRoutes);
 app.use('/generos', genderRoutes);
