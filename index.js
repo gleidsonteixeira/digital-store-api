@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const swaggerUI = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
 
@@ -29,6 +30,7 @@ const brandRoutes = require('./routes/brandRoutes');
 const categoriesRoutes = require('./routes/categoriesRoutes');
 const genderRoutes = require('./routes/genderRoutes');
 const userRoutes = require('./routes/userRoutes');
+const userController = require('./controllers/userController');
 
 app.use(express.json());
 app.use(cors());
@@ -77,15 +79,16 @@ app.get('/', (request, response) => {
  *              description: Marca não encontrada
  */
 app.use('/user', userRoutes);
-
-const hasToken = (req, res, next) => {
+app.use(async (req, res, next) => {
     if(!req.headers.authorization){
-        return res.send('Token é necessário!')
+        return res.status(401).send('Token é necessário!');
+    }
+    const result = await userController.checkToken(req.headers.authorization.split(' ')[1]);
+    if(result.length === 0){
+        return res.status(401).send('Token expirado!');
     }
     next();
-}
-app.use(hasToken);
-
+});
 app.use('/marcas', brandRoutes);
 app.use('/categorias', categoriesRoutes);
 app.use('/generos', genderRoutes);
